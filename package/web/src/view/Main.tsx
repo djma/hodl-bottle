@@ -9,6 +9,8 @@ import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { Provider } from "@wagmi/core";
 import { useProvider, useSigner } from "wagmi";
 import { Hodl, factories } from "../../types/ethers-contracts";
+import bottle from "../../images/bottle-of-colored-sand.svg";
+import ethlogo from "../../images/eth-logo.svg";
 
 const HodlRopstenAddr = "0x032c93f5ed76242771f5b7807b9eb7f1bcdc199a";
 
@@ -80,7 +82,15 @@ export class HodlDisplay extends React.PureComponent<Props> {
     const releaseDate = new Date(this.state.releaseTime * 1000);
     return (
       <main>
-        <h1>HODL HELPER</h1>
+        <h1>HODL BOTTLE</h1>
+        <div
+          style={{
+            backgroundImage: `url(${bottle})`,
+            backgroundRepeat: `no-repeat`,
+          }}
+        >
+          <img className="eth-logo" src={ethlogo} alt="ethlogo" />
+        </div>
         <div>Deposit eth. Gets locked for 100 seconds.</div>
         <br></br>
         <div>
