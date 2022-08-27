@@ -4,6 +4,7 @@
 import type {
   BaseContract,
   BigNumber,
+  BigNumberish,
   BytesLike,
   CallOverrides,
   ContractTransaction,
@@ -25,42 +26,27 @@ import type {
 
 export interface HodlInterface extends utils.Interface {
   functions: {
-    "balanceOf(address)": FunctionFragment;
-    "deposit()": FunctionFragment;
-    "getBalance()": FunctionFragment;
-    "getReleaseTime(address)": FunctionFragment;
-    "getReleaseTime()": FunctionFragment;
+    "deposit(uint256)": FunctionFragment;
+    "lockedBalance(address)": FunctionFragment;
     "releaseTime(address)": FunctionFragment;
     "withdraw()": FunctionFragment;
   };
 
   getFunction(
     nameOrSignatureOrTopic:
-      | "balanceOf"
       | "deposit"
-      | "getBalance"
-      | "getReleaseTime(address)"
-      | "getReleaseTime()"
+      | "lockedBalance"
       | "releaseTime"
       | "withdraw"
   ): FunctionFragment;
 
   encodeFunctionData(
-    functionFragment: "balanceOf",
+    functionFragment: "deposit",
+    values: [PromiseOrValue<BigNumberish>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "lockedBalance",
     values: [PromiseOrValue<string>]
-  ): string;
-  encodeFunctionData(functionFragment: "deposit", values?: undefined): string;
-  encodeFunctionData(
-    functionFragment: "getBalance",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "getReleaseTime(address)",
-    values: [PromiseOrValue<string>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "getReleaseTime()",
-    values?: undefined
   ): string;
   encodeFunctionData(
     functionFragment: "releaseTime",
@@ -68,15 +54,9 @@ export interface HodlInterface extends utils.Interface {
   ): string;
   encodeFunctionData(functionFragment: "withdraw", values?: undefined): string;
 
-  decodeFunctionResult(functionFragment: "balanceOf", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "deposit", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "getBalance", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "getReleaseTime(address)",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "getReleaseTime()",
+    functionFragment: "lockedBalance",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -115,23 +95,15 @@ export interface Hodl extends BaseContract {
   removeListener: OnEvent<this>;
 
   functions: {
-    balanceOf(
-      arg0: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber]>;
-
     deposit(
+      duration: PromiseOrValue<BigNumberish>,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    getBalance(overrides?: CallOverrides): Promise<[BigNumber]>;
-
-    "getReleaseTime(address)"(
-      _addr: PromiseOrValue<string>,
+    lockedBalance(
+      arg0: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<[BigNumber]>;
-
-    "getReleaseTime()"(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     releaseTime(
       arg0: PromiseOrValue<string>,
@@ -143,23 +115,15 @@ export interface Hodl extends BaseContract {
     ): Promise<ContractTransaction>;
   };
 
-  balanceOf(
-    arg0: PromiseOrValue<string>,
-    overrides?: CallOverrides
-  ): Promise<BigNumber>;
-
   deposit(
+    duration: PromiseOrValue<BigNumberish>,
     overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  getBalance(overrides?: CallOverrides): Promise<BigNumber>;
-
-  "getReleaseTime(address)"(
-    _addr: PromiseOrValue<string>,
+  lockedBalance(
+    arg0: PromiseOrValue<string>,
     overrides?: CallOverrides
   ): Promise<BigNumber>;
-
-  "getReleaseTime()"(overrides?: CallOverrides): Promise<BigNumber>;
 
   releaseTime(
     arg0: PromiseOrValue<string>,
@@ -171,21 +135,15 @@ export interface Hodl extends BaseContract {
   ): Promise<ContractTransaction>;
 
   callStatic: {
-    balanceOf(
+    deposit(
+      duration: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    lockedBalance(
       arg0: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
-
-    deposit(overrides?: CallOverrides): Promise<void>;
-
-    getBalance(overrides?: CallOverrides): Promise<BigNumber>;
-
-    "getReleaseTime(address)"(
-      _addr: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    "getReleaseTime()"(overrides?: CallOverrides): Promise<BigNumber>;
 
     releaseTime(
       arg0: PromiseOrValue<string>,
@@ -198,23 +156,15 @@ export interface Hodl extends BaseContract {
   filters: {};
 
   estimateGas: {
-    balanceOf(
-      arg0: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
     deposit(
+      duration: PromiseOrValue<BigNumberish>,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    getBalance(overrides?: CallOverrides): Promise<BigNumber>;
-
-    "getReleaseTime(address)"(
-      _addr: PromiseOrValue<string>,
+    lockedBalance(
+      arg0: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
-
-    "getReleaseTime()"(overrides?: CallOverrides): Promise<BigNumber>;
 
     releaseTime(
       arg0: PromiseOrValue<string>,
@@ -227,23 +177,13 @@ export interface Hodl extends BaseContract {
   };
 
   populateTransaction: {
-    balanceOf(
-      arg0: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
     deposit(
+      duration: PromiseOrValue<BigNumberish>,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    getBalance(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    "getReleaseTime(address)"(
-      _addr: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    "getReleaseTime()"(
+    lockedBalance(
+      arg0: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
