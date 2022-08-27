@@ -1,9 +1,9 @@
 {
   "scripts": {
     "test": "ts-node node_modules/tape/bin/tape src/**/*.test.ts",
-    "start": "esbuild src/app.tsx --bundle --servedir=www/ --outdir=www/dist --sourcemap",
+    "start": "esbuild src/app.tsx --bundle --servedir=www/ --outdir=www/dist --sourcemap --loader:.svg=dataurl",
     "build": "esbuild src/app.tsx --bundle --minify --outdir=www/dist",
-    "codegen": "typechain --target=ethers-v5 ../contracts/out/Counter.sol/Counter.json"
+    "codegen": "typechain --target=ethers-v5 ./abi/*.json"
   },
   "dependencies": {
     "@rainbow-me/rainbowkit": "^0.4.8",
