@@ -1,26 +1,25 @@
 import "@rainbow-me/rainbowkit/styles.css";
 import "./Main.css";
 
-import { Signer } from "ethers";
+import { Signer, ethers } from "ethers";
 import * as React from "react";
 import { useMemo } from "react";
 
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { Provider } from "@wagmi/core";
 import { useProvider, useSigner } from "wagmi";
-import { Counter, factories } from "../../types/ethers-contracts";
+import { Hodl, factories } from "../../types/ethers-contracts";
 
-const contractAddr = "0x50afdfb4fde5878f33aa0b2d380e1141859e15c8";
-const etherscanUrl = "https://ropsten.etherscan.io/address/" + contractAddr;
+const HodlRopstenAddr = "0x032c93f5ed76242771f5b7807b9eb7f1bcdc199a";
 
 export default function Main() {
   const provider = useProvider();
   const { data: signer } = useSigner();
 
-  const counterContract = useMemo(
+  const hodlContract = useMemo(
     function () {
-      return factories.Counter__factory.connect(
-        contractAddr,
+      return factories.Hodl__factory.connect(
+        HodlRopstenAddr,
         signer || provider
       );
     },
@@ -29,22 +28,24 @@ export default function Main() {
 
   return (
     <main>
-      <h1>Hello world</h1>
       <ConnectButton />
-      <CounterDisplay counterContract={counterContract} />
+      <br></br>
+      <HodlDisplay hodlContract={hodlContract} />
     </main>
   );
 }
 
 interface Props {
-  counterContract: Counter;
+  hodlContract: Hodl;
 }
-
-export class CounterDisplay extends React.PureComponent<Props> {
-  state = { counter: 0 };
+export class HodlDisplay extends React.PureComponent<Props> {
+  state = { balance: 0, releaseTime: 0 };
 
   constructor(props: Props) {
     super(props);
+    // why do i have to do this bind thing?
+    this.handleSubmit = this.handleSubmit.bind(this);
+    this.handleWithdraw = this.handleWithdraw.bind(this);
   }
 
   componentDidMount() {
@@ -52,37 +53,52 @@ export class CounterDisplay extends React.PureComponent<Props> {
   }
 
   reload = async () => {
-    console.log("Load the counter from chain state...");
-    const num = await this.props.counterContract.number();
-    this.setState({ counter: num.toNumber() });
+    this.props.hodlContract
+      .balanceOf(this.props.hodlContract.signer.getAddress())
+      .then((depositAmount) => {
+        this.setState({ balance: depositAmount.toNumber() });
+      });
+    this.props.hodlContract["getReleaseTime(address)"](
+      this.props.hodlContract.signer.getAddress()
+    ).then((releaseTime) => {
+      this.setState({ releaseTime: releaseTime.toNumber() });
+    });
   };
 
+  handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const form = event.currentTarget;
+    const deposit = parseInt(form.elements["name"].value);
+    const tx = this.props.hodlContract.deposit({ value: deposit });
+  }
+
+  handleWithdraw() {
+    this.props.hodlContract.withdraw();
+  }
+
   render() {
-    const disconnected = this.props.counterContract.signer == null;
+    const releaseDate = new Date(this.state.releaseTime * 1000);
     return (
       <main>
-        <h2>
-          Counter{" "}
-          <small>
-            <a href={etherscanUrl}>↗ view contract on Etherscan</a>
-          </small>
-        </h2>
+        <h1>HODL HELPER</h1>
+        <div>Deposit eth. Gets locked for 100 seconds.</div>
+        <br></br>
         <div>
-          <strong>Counter is currently {this.state.counter}</strong>
+          You have <strong>{this.state.balance}</strong> wei deposited.
         </div>
         <div>
-          <button disabled={disconnected} onClick={this.increment}>
-            Increment
-          </button>
+          You can withdraw at{" "}
+          <strong>{releaseDate.toLocaleTimeString()}</strong>.
         </div>
+        <form onSubmit={this.handleSubmit}>
+          <label>
+            Deposit (wei):
+            <input type="text" name="name" />
+          </label>
+          <input type="submit" value="HODL" />
+        </form>
+        <button onClick={this.handleWithdraw}>Withdraw everything</button>
       </main>
     );
   }
-
-  increment = async () => {
-    // increment the counter
-    const tx = await this.props.counterContract.increment();
-    // note this is a PENDING transaction
-    console.log(`Sent increment transaction: ${tx.hash}`);
-  };
 }
