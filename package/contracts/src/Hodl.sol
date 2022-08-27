@@ -2,39 +2,33 @@
 pragma solidity ^0.8.13;
 
 contract Hodl {
-    mapping(address => uint256) public balanceOf;
+    mapping(address => uint256) public lockedBalance;
     mapping(address => uint256) public releaseTime;
 
     receive() external payable {
-        deposit();
+        deposit(0);
     }
 
-    function deposit() public payable {
-        balanceOf[msg.sender] += msg.value;
-        releaseTime[msg.sender] = block.timestamp + 100;
-    }
+    function deposit(uint256 duration) public payable {
+        // cannot move release time earlier
+        require(
+            block.timestamp + duration >= releaseTime[msg.sender],
+            "cannot move release time earlier"
+        );
 
-    function getReleaseTime() public view returns (uint256) {
-        return releaseTime[msg.sender];
-    }
-
-    function getReleaseTime(address _addr) public view returns (uint256) {
-        return releaseTime[_addr];
-    }
-
-    function getBalance() public view returns (uint256) {
-        return balanceOf[msg.sender];
+        lockedBalance[msg.sender] += msg.value;
+        releaseTime[msg.sender] = block.timestamp + duration;
     }
 
     function withdraw() public {
         require(
-            block.timestamp > getReleaseTime(),
-            "You can only withdraw after 100 seconds"
+            block.timestamp > releaseTime[msg.sender],
+            "You can only withdraw after release time"
         );
         bool success;
-        uint256 amount = balanceOf[msg.sender];
+        uint256 amount = lockedBalance[msg.sender];
         address sender = msg.sender;
-        balanceOf[msg.sender] = 0;
+        lockedBalance[msg.sender] = 0;
         assembly {
             // Transfer the ETH and store if it succeeded or not.
             success := call(gas(), sender, amount, 0, 0, 0, 0)

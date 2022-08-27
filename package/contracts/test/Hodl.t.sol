@@ -18,22 +18,23 @@ contract HodlTest is Test {
 
     function testDeposit() public {
         vm.warp(1000);
-        hodl.deposit{value: 1e18}();
-        assertEq(hodl.getReleaseTime(), 1000 + 100);
-        assertEq(hodl.getBalance(), 1e18);
+        uint256 duration = 100;
+        hodl.deposit{value: 1e18}(duration);
+        assertEq(hodl.releaseTime(alice), 1000 + duration);
+        assertEq(hodl.lockedBalance(alice), 1e18);
         assertEq(alice.balance, 0);
-    }
-
-    function testWithdraw() public {
-        testDeposit();
 
         // Withdrawing too soon
         //console.log(hodl.getReleaseTime(), block.timestamp);
-        vm.expectRevert(bytes("You can only withdraw after 100 seconds"));
+        vm.expectRevert(bytes("You can only withdraw after release time"));
         hodl.withdraw();
         assertEq(alice.balance, 0);
 
-        vm.warp(block.timestamp + 100 + 1);
+        // Not allowed to set release time to something earlier
+        vm.expectRevert(bytes("cannot move release time earlier"));
+        hodl.deposit(0);
+
+        vm.warp(block.timestamp + duration + 1);
         hodl.withdraw();
 
         assertEq(alice.balance, 1e18);
