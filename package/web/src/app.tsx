@@ -14,7 +14,7 @@ import Main from "./view/Main";
 
 // Connect to Ethereum via wagmi
 const { chains, provider } = configureChains(
-  [chain.ropsten],
+  [chain.mainnet],
   [publicProvider()]
 );
 const { connectors } = getDefaultWallets({ appName: "Hello Foundry", chains });

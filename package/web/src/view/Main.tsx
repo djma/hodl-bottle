@@ -13,6 +13,7 @@ import bottle from "../../images/bottle-of-colored-sand.svg";
 import ethlogo from "../../images/eth-logo.svg";
 
 const HodlRopstenAddr = "0xce65acc0d5fa345f86680a8941ca285a9bc7214b";
+const HodlMainnetAddr = "0x7383502f4a8271e381cf4eec99235ecd8f5633ab";
 
 export default function Main() {
   const provider = useProvider();
@@ -21,7 +22,7 @@ export default function Main() {
   const hodlContract = useMemo(
     function () {
       return factories.Hodl__factory.connect(
-        HodlRopstenAddr,
+        HodlMainnetAddr,
         signer || provider
       );
     },
