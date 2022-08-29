@@ -49,6 +49,7 @@ export class HodlDisplay extends React.PureComponent<Props> {
   }
 
   componentDidMount() {
+    setTimeout(this.reload, 500);
     setInterval(this.reload, 5000);
   }
 
