@@ -98,8 +98,7 @@ export class HodlDisplay extends React.PureComponent<Props> {
         <br></br>
         <label>HODL duration: </label>
         <select name="selectList" id="selectList" onChange={this.handleSelect}>
-          <option value="100">100 seconds</option>
-          <option value="200">200 seconds</option>
+          <option value="300">5 minutes</option>
           <option value="86400">1 day</option>
           <option value="604800">1 week</option>
           <option value="2592000">1 month</option>
