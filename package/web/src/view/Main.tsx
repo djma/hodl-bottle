@@ -1,7 +1,7 @@
 import "@rainbow-me/rainbowkit/styles.css";
 import "./Main.css";
 
-import { Signer, ethers } from "ethers";
+import { utils } from "ethers";
 import * as React from "react";
 import { useMemo } from "react";
 
@@ -41,7 +41,7 @@ interface Props {
   hodlContract: Hodl;
 }
 export class HodlDisplay extends React.PureComponent<Props> {
-  state = { balance: 0, releaseTime: 0, hodlDuration: 0 };
+  state = { balance: "0", releaseTime: 0, hodlDuration: 300 };
 
   constructor(props: Props) {
     super(props);
@@ -55,7 +55,7 @@ export class HodlDisplay extends React.PureComponent<Props> {
     this.props.hodlContract
       .lockedBalance(this.props.hodlContract.signer.getAddress())
       .then((depositAmount) => {
-        this.setState({ balance: depositAmount.toNumber() });
+        this.setState({ balance: depositAmount });
       });
     this.props.hodlContract["releaseTime(address)"](
       this.props.hodlContract.signer.getAddress()
@@ -67,9 +67,9 @@ export class HodlDisplay extends React.PureComponent<Props> {
   handleSubmitHodl = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const form = event.currentTarget;
-    const deposit = parseInt(form.elements["name"].value);
+    const ethDepositAmount = form.elements["name"].value;
     const tx = this.props.hodlContract.deposit(this.state.hodlDuration, {
-      value: deposit,
+      value: utils.parseEther(ethDepositAmount),
     });
   };
 
@@ -95,6 +95,14 @@ export class HodlDisplay extends React.PureComponent<Props> {
           <img className="eth-logo" src={ethlogo} alt="ethlogo" />
         </div>
         <div>Deposit eth. Turn paper hands into diamond hands.</div>
+        <ul>
+          <li>No airdrop, no gov coin, no nft</li>
+          <li>No yield, no defi</li>
+          <li>No deposit receipt, no composability</li>
+          <li>No DAO, no upgradability</li>
+          <li>No audits (Actually, audited by John. Trust John.)</li>
+          <li>Only HODL</li>
+        </ul>
         <br></br>
         <label>HODL duration: </label>
         <select name="selectList" id="selectList" onChange={this.handleSelect}>
@@ -106,20 +114,29 @@ export class HodlDisplay extends React.PureComponent<Props> {
         </select>
         <form onSubmit={this.handleSubmitHodl}>
           <label>
-            Deposit (wei):
+            Deposit (eth):
             <input type="text" name="name" />
           </label>
           <input type="submit" value="HODL" />
         </form>
         <br></br>
         <div>
-          You have <strong>{this.state.balance}</strong> wei deposited.
+          You have <strong>{utils.formatEther(this.state.balance)}</strong> eth
+          deposited.
         </div>
-        <div>
-          You can withdraw after{" "}
-          <strong>{releaseDate.toLocaleTimeString()}</strong>.
-        </div>
+        {this.state.balance > "0" && (
+          <div>
+            You can withdraw{" "}
+            <strong>
+              {releaseDate < new Date()
+                ? "now"
+                : "after " + releaseDate.toLocaleString()}
+              .
+            </strong>
+          </div>
+        )}
         <button onClick={this.handleWithdraw}>Withdraw everything</button>
+        <br></br>
       </main>
     );
   }
